@@ -9,6 +9,7 @@ import {
   Check,
 } from "lucide-react-native";
 import { useLoan } from "../../contexts/LoanContext";
+import { formatCurrency } from "../../lib/loanMath";
 
 const recentActivity = [
   { icon: "bank", title: "Bank account connected", time: "Today, 10:15 AM" },
@@ -49,31 +50,25 @@ function ActivityIcon({ type }: { type: string }) {
   }
 }
 
+function getEligibilityStage(bankConnected: boolean, billUploaded: boolean) {
+  const completed = [bankConnected, billUploaded].filter(Boolean).length;
+  if (completed === 0) return { index: 0, percent: 20 };
+  if (completed === 1) return { index: 1, percent: 60 };
+  return { index: 2, percent: 100 };
+}
+
 export default function Home() {
-  const {
-    status,
-    setStatus,
-    boost,
-    connectBank,
-    uploadBill,
-    loanTotal,
-    outstandingBalance,
-    repay,
-  } = useLoan();
+  const { status, boost, loanTotal, outstandingBalance } = useLoan();
 
   const repaidPercent = Math.round(
     ((loanTotal - outstandingBalance) / loanTotal) * 100
   );
 
-  const handleApply = () => {
-    setStatus("underReview");
-    router.push("/apply-loan");
-  };
-
-  const handleRepay = () => {
-    repay(35000);
-    Alert.alert("Payment received", "Your repayment of N35,000 was successful.");
-  };
+  const eligibility = getEligibilityStage(
+    boost.bankConnected,
+    boost.billUploaded
+  );
+  const stageLabels = ["Building", "Good standing", "Excellent"];
 
   const handleBell = () => {
     Alert.alert("Notifications", "You're all caught up!");
@@ -101,12 +96,23 @@ export default function Home() {
             Based on your connected bank activities
           </Text>
           <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: "35%" }]} />
+            <View
+              style={[styles.progressFill, { width: `${eligibility.percent}%` }]}
+            />
           </View>
           <View style={styles.progressLabels}>
-            <Text style={styles.progressLabelActive}>Building</Text>
-            <Text style={styles.progressLabel}>Good standing</Text>
-            <Text style={styles.progressLabel}>Excellent</Text>
+            {stageLabels.map((label, i) => (
+              <Text
+                key={label}
+                style={
+                  i === eligibility.index
+                    ? styles.progressLabelActive
+                    : styles.progressLabel
+                }
+              >
+                {label}
+              </Text>
+            ))}
           </View>
         </View>
       )}
@@ -115,10 +121,10 @@ export default function Home() {
         <View style={styles.statusCard}>
           <Text style={styles.statusLabel}>Outstanding Balance</Text>
           <Text style={styles.statusAmount}>
-            N{outstandingBalance.toLocaleString()}
+            {formatCurrency(outstandingBalance)}
           </Text>
           <Text style={styles.statusSubtext}>
-            of N{loanTotal.toLocaleString()} borrowed – {repaidPercent}% repaid
+            of {formatCurrency(loanTotal)} borrowed – {repaidPercent}% repaid
           </Text>
           <View style={styles.progressTrack}>
             <View
@@ -138,7 +144,10 @@ export default function Home() {
             </View>
           </View>
           {outstandingBalance > 0 && (
-            <Pressable style={styles.repayButton} onPress={handleRepay}>
+            <Pressable
+              style={styles.repayButton}
+              onPress={() => router.push("/repay-loan")}
+            >
               <Text style={styles.repayButtonText}>Repay now</Text>
             </Pressable>
           )}
@@ -159,7 +168,7 @@ export default function Home() {
           </Text>
           <Pressable
             style={styles.reviewButton}
-            onPress={() => router.push("/apply-loan")}
+            onPress={() => router.push("/apply-loan-review")}
           >
             <Text style={styles.reviewButtonText}>Review application</Text>
           </Pressable>
@@ -181,11 +190,18 @@ export default function Home() {
             </View>
             <View style={styles.boostText}>
               <Text style={styles.boostTitle}>
-                {boost.bankConnected ? "Bank account connected" : "Connect bank account"}
+                {boost.bankConnected
+                  ? "Bank account connected"
+                  : "Connect bank account"}
               </Text>
-              <Text style={styles.boostSubtitle}>Strengthens your score</Text>
+              <Text style={styles.boostSubtitle}>
+                {boost.bankConnected ? boost.bankName : "Strengthens your score"}
+              </Text>
             </View>
-            <Pressable onPress={connectBank} disabled={boost.bankConnected}>
+            <Pressable
+              onPress={() => router.push("/connect-bank")}
+              disabled={boost.bankConnected}
+            >
               <Text
                 style={[
                   styles.boostAction,
@@ -207,11 +223,20 @@ export default function Home() {
             </View>
             <View style={styles.boostText}>
               <Text style={styles.boostTitle}>
-                {boost.billUploaded ? "Utility bill uploaded" : "Upload a utility bill"}
+                {boost.billUploaded
+                  ? "Utility bill uploaded"
+                  : "Upload a utility bill"}
               </Text>
-              <Text style={styles.boostSubtitle}>Strengthens your score</Text>
+              <Text style={styles.boostSubtitle} numberOfLines={1}>
+                {boost.billUploaded
+                  ? boost.billFileName
+                  : "Strengthens your score"}
+              </Text>
             </View>
-            <Pressable onPress={uploadBill} disabled={boost.billUploaded}>
+            <Pressable
+              onPress={() => router.push("/upload-bill")}
+              disabled={boost.billUploaded}
+            >
               <Text
                 style={[
                   styles.boostAction,
@@ -227,7 +252,10 @@ export default function Home() {
 
       {/* Apply for a loan - eligible state */}
       {status === "eligible" && (
-        <Pressable style={styles.applyButton} onPress={handleApply}>
+        <Pressable
+          style={styles.applyButton}
+          onPress={() => router.push("/apply-loan-amount")}
+        >
           <Text style={styles.applyButtonText}>Apply for a loan</Text>
         </Pressable>
       )}
@@ -279,7 +307,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAF3EA",
   },
   content: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 60,
     paddingBottom: 40,
   },
   header: {
@@ -294,7 +323,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: "600",
     color: "#111827",
     marginTop: 2,
   },
@@ -337,7 +366,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: 6,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#22A67A",
     borderRadius: 3,
   },
   progressFillGreen: {
@@ -355,7 +384,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   progressLabelActive: {
-    color: "#FFFFFF",
+    color: "#22A67A",
     fontSize: 11,
     fontWeight: "700",
   },
@@ -441,6 +470,7 @@ const styles = StyleSheet.create({
   boostText: {
     flex: 1,
     marginLeft: 12,
+    marginRight: 8,
   },
   boostTitle: {
     fontSize: 13,

@@ -1,6 +1,7 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { Check } from "lucide-react-native";
+import { useLoan } from "../contexts/LoanContext";
 
 const approvedDetails = [
   { label: "Amount", value: "N250,000" },
@@ -9,7 +10,10 @@ const approvedDetails = [
 ];
 
 export default function LoanApproved() {
+  const { setStatus } = useLoan();
+
   const handleDone = () => {
+    setStatus("activeLoan");
     router.replace("/(tabs)/home");
   };
 
