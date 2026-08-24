@@ -1,11 +1,10 @@
 import { Stack } from "expo-router";
+import { LoanProvider } from "../contexts/LoanContext";
 
 export default function RootLayout() {
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
+    <LoanProvider>
+      <Stack screenOptions={{ headerShown: false }} />
+    </LoanProvider>
   );
 }

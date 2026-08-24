@@ -22,7 +22,10 @@ export default function WelcomeAuth() {
         >
           <Text style={styles.signUpText}>Sign Up</Text>
         </Pressable>
-        <Pressable style={styles.loginButton}>
+        <Pressable
+          style={styles.loginButton}
+          onPress={() => router.push("/signin")}
+        >
           <Text style={styles.loginText}>Login</Text>
         </Pressable>
       </View>
