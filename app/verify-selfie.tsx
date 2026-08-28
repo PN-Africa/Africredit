@@ -1,3 +1,4 @@
+/* import { useFacesInPhoto } from "@infinitered/react-native-mlkit-face-detection"; */
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
@@ -160,8 +161,11 @@ export default function VerifySelfie() {
           <TouchableOpacity
             style={styles.continueButton}
             onPress={() => {
-              // We will connect this to Step 3 later
-              console.log("Selfie confirmed");
+              /*console.log("Selfie confirmed");
+              console.log("Face detection status:", status);
+              console.log("Faces detected:", faces?.length);
+              console.log("Face detection error:", error);*/
+              router.push("./personal-details");
             }}
           >
             <Text style={styles.continueText}>Continue</Text>
