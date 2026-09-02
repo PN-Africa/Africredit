@@ -8,7 +8,8 @@
     "scheme": "africredit",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.Africredit"
     },
     "android": {
       "adaptiveIcon": {
