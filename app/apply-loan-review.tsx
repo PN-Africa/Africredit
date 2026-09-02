@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, Pressable, StyleSheet, Modal } from "react-native";
 import { router } from "expo-router";
 import { ArrowLeft, X as XIcon, Check } from "lucide-react-native";
@@ -11,8 +11,13 @@ export default function ApplyLoanReview() {
   const [agreed, setAgreed] = useState(false);
   const [terminateModalVisible, setTerminateModalVisible] = useState(false);
 
+  useEffect(() => {
+    if (!application) {
+      router.replace("/(tabs)/home");
+    }
+  }, [application]);
+
   if (!application) {
-    router.replace("/(tabs)/home");
     return null;
   }
 
@@ -57,9 +62,6 @@ export default function ApplyLoanReview() {
     router.replace("/terminate-success");
   };
 
-  // Demo-only trigger to preview the approval flow, since there's no backend
-  // making a real approval decision yet. Remove once approvals are wired to
-  // a real API/webhook.
   const handleSimulateApproval = () => {
     router.push("/loan-approved");
   };
@@ -133,7 +135,6 @@ export default function ApplyLoanReview() {
         </>
       )}
 
-      {/* Terminate confirmation */}
       <Modal
         visible={terminateModalVisible}
         transparent

@@ -5,13 +5,18 @@ import { ArrowLeft } from "lucide-react-native";
 import { useLoan } from "../contexts/LoanContext";
 import { formatCurrency } from "../lib/loanMath";
 
-const MIN_PAYMENT = 35000;
-
 export default function RepayLoan() {
-  const { outstandingBalance, boost, setPendingRepayAmount } = useLoan();
-  const [amount, setAmount] = useState(
-    Math.min(MIN_PAYMENT, outstandingBalance)
-  );
+  const { outstandingBalance, boost, activeLoanDetails, setPendingRepayAmount } =
+    useLoan();
+
+  const monthlyRepayment = activeLoanDetails
+    ? Math.round(
+        activeLoanDetails.totalRepayment / activeLoanDetails.durationMonths
+      )
+    : 35000;
+  const nextPayment = Math.min(monthlyRepayment, outstandingBalance);
+
+  const [amount, setAmount] = useState(nextPayment);
 
   const bankLabel = boost.bankConnected
     ? `${boost.bankName} *****1234`
@@ -41,7 +46,7 @@ export default function RepayLoan() {
           <View style={{ alignItems: "flex-end" }}>
             <Text style={styles.balanceLabel}>Due 15 Aug 2026</Text>
             <Text style={styles.balanceValueGreen}>
-              {formatCurrency(MIN_PAYMENT)}
+              {formatCurrency(nextPayment)}
             </Text>
           </View>
         </View>
@@ -55,14 +60,14 @@ export default function RepayLoan() {
           <Pressable
             style={[
               styles.quickChip,
-              amount === MIN_PAYMENT && styles.quickChipActive,
+              amount === nextPayment && styles.quickChipActive,
             ]}
-            onPress={() => setAmount(Math.min(MIN_PAYMENT, outstandingBalance))}
+            onPress={() => setAmount(nextPayment)}
           >
             <Text
               style={[
                 styles.quickChipText,
-                amount === MIN_PAYMENT && styles.quickChipTextActive,
+                amount === nextPayment && styles.quickChipTextActive,
               ]}
             >
               Next payment

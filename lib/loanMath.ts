@@ -10,6 +10,14 @@ export function formatDate(date: Date) {
   });
 }
 
+export function formatTime(date: Date) {
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 const MONTHLY_RATE = 0.035;
 
 export function calcLoanTerms(amount: number, durationMonths: number) {
