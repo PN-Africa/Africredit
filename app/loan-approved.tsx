@@ -3,19 +3,27 @@ import { router } from "expo-router";
 import { Check } from "lucide-react-native";
 import { useLoan } from "../contexts/LoanContext";
 
-const approvedDetails = [
-  { label: "Amount", value: "N250,000" },
-  { label: "Purpose", value: "Inventory & stock" },
-  { label: "Duration", value: "1 month" },
-];
-
 export default function LoanApproved() {
-  const { setStatus } = useLoan();
+  const { application, activateLoan } = useLoan();
 
   const handleDone = () => {
-    setStatus("activeLoan");
+    activateLoan();
     router.replace("/(tabs)/home");
   };
+
+  const displayAmount = application
+    ? `N${application.amount.toLocaleString()}`
+    : "N250,000";
+  const displayPurpose = application?.purpose ?? "Inventory & stock";
+  const displayDuration = application
+    ? `${application.durationMonths} month${application.durationMonths > 1 ? "s" : ""}`
+    : "1 month";
+
+  const approvedDetails = [
+    { label: "Amount", value: displayAmount },
+    { label: "Purpose", value: displayPurpose },
+    { label: "Duration", value: displayDuration },
+  ];
 
   return (
     <View style={styles.container}>
@@ -27,8 +35,8 @@ export default function LoanApproved() {
         </View>
         <Text style={styles.title}>Your loan has been approved</Text>
         <Text style={styles.subtitle}>
-          N250,000 has been sent to your GTBank*******1234 account. It should
-          reflect within 1 hour
+          {displayAmount} has been sent to your GTBank*******1234 account. It
+          should reflect within 1 hour
         </Text>
 
         <View style={styles.detailsCard}>

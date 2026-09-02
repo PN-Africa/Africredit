@@ -58,11 +58,20 @@ function getEligibilityStage(bankConnected: boolean, billUploaded: boolean) {
 }
 
 export default function Home() {
-  const { status, boost, loanTotal, outstandingBalance } = useLoan();
+  const {
+    status,
+    boost,
+    loanTotal,
+    outstandingBalance,
+    startNewLoan,
+    activeLoanDetails,
+    application,
+  } = useLoan();
 
-  const repaidPercent = Math.round(
-    ((loanTotal - outstandingBalance) / loanTotal) * 100
-  );
+  const repaidPercent =
+    loanTotal > 0
+      ? Math.round(((loanTotal - outstandingBalance) / loanTotal) * 100)
+      : 0;
 
   const eligibility = getEligibilityStage(
     boost.bankConnected,
@@ -70,8 +79,22 @@ export default function Home() {
   );
   const stageLabels = ["Building", "Good standing", "Excellent"];
 
+  const nextPaymentAmount = activeLoanDetails
+    ? Math.min(
+        Math.round(
+          activeLoanDetails.totalRepayment / activeLoanDetails.durationMonths
+        ),
+        outstandingBalance
+      )
+    : 35000;
+
   const handleBell = () => {
     Alert.alert("Notifications", "You're all caught up!");
+  };
+
+  const handleApplyForNewLoan = () => {
+    startNewLoan();
+    router.push("/apply-loan-amount");
   };
 
   return (
@@ -135,7 +158,9 @@ export default function Home() {
             <View>
               <Text style={styles.paymentLabel}>Next payment</Text>
               <Text style={styles.paymentValue}>
-                {outstandingBalance > 0 ? "N35,000" : "Fully repaid"}
+                {outstandingBalance > 0
+                  ? formatCurrency(nextPaymentAmount)
+                  : "Fully repaid"}
               </Text>
             </View>
             <View style={{ alignItems: "flex-end" }}>
@@ -143,18 +168,25 @@ export default function Home() {
               <Text style={styles.paymentValue}>15 Aug 2026</Text>
             </View>
           </View>
-          {outstandingBalance > 0 && (
+          {outstandingBalance > 0 ? (
             <Pressable
               style={styles.repayButton}
               onPress={() => router.push("/repay-loan")}
             >
               <Text style={styles.repayButtonText}>Repay now</Text>
             </Pressable>
+          ) : (
+            <Pressable
+              style={styles.repayButton}
+              onPress={handleApplyForNewLoan}
+            >
+              <Text style={styles.repayButtonText}>Apply for a new loan</Text>
+            </Pressable>
           )}
         </View>
       )}
 
-      {status === "underReview" && (
+      {status === "underReview" && application && (
         <View style={styles.statusCard}>
           <View style={styles.reviewHeader}>
             <Text style={styles.statusLabel}>Loan Requested</Text>
@@ -162,9 +194,13 @@ export default function Home() {
               <Text style={styles.reviewBadgeText}>Under Review</Text>
             </View>
           </View>
-          <Text style={styles.statusAmount}>N350,000</Text>
+          <Text style={styles.statusAmount}>
+            {formatCurrency(application.amount)}
+          </Text>
           <Text style={styles.statusSubtext}>
-            Inventory & stock · 6 months · submitted today, 11:30 AM
+            {application.purpose} · {application.durationMonths} month
+            {application.durationMonths > 1 ? "s" : ""} · submitted today,
+            11:30 AM
           </Text>
           <Pressable
             style={styles.reviewButton}

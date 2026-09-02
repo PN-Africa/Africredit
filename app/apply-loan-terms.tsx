@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
@@ -11,8 +12,13 @@ import {
 export default function ApplyLoanTerms() {
   const { application } = useLoan();
 
+  useEffect(() => {
+    if (!application) {
+      router.replace("/apply-loan-amount");
+    }
+  }, [application]);
+
   if (!application) {
-    router.replace("/apply-loan-amount");
     return null;
   }
 
