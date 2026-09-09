@@ -1,5 +1,7 @@
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import {
+  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -9,6 +11,28 @@ import {
 
 export default function VerifyIdentity() {
   const router = useRouter();
+
+  const [bvn, setBvn] = useState("");
+
+  const handleConfirm = () => {
+    // Make sure the BVN is exactly 11 digits
+    if (bvn.length !== 11) {
+      Alert.alert(
+        "Invalid BVN",
+        "Please enter your 11-digit Bank Verification Number.",
+      );
+      return;
+    }
+
+    // Pass the BVN to the next step.
+    // We will use it later when submitting the complete KYC payload.
+    router.push({
+      pathname: "/verify-selfie",
+      params: {
+        bvn,
+      },
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -39,8 +63,14 @@ export default function VerifyIdentity() {
         style={styles.input}
         placeholder="23456789023"
         placeholderTextColor="#777777"
-        keyboardType="numeric"
+        keyboardType="number-pad"
         maxLength={11}
+        value={bvn}
+        onChangeText={(text) => {
+          // Only allow numbers
+          const numbersOnly = text.replace(/[^0-9]/g, "");
+          setBvn(numbersOnly);
+        }}
       />
 
       {/* BVN instruction */}
@@ -61,8 +91,11 @@ export default function VerifyIdentity() {
 
       {/* Confirm button */}
       <TouchableOpacity
-        style={styles.confirmButton}
-        onPress={() => router.push("./verify-selfie")}
+        style={[
+          styles.confirmButton,
+          bvn.length !== 11 && styles.confirmButtonDisabled,
+        ]}
+        onPress={handleConfirm}
       >
         <Text style={styles.confirmText}>Confirm</Text>
       </TouchableOpacity>
@@ -182,6 +215,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#29AA83",
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  confirmButtonDisabled: {
+    opacity: 0.5,
   },
 
   confirmText: {

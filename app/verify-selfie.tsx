@@ -1,6 +1,6 @@
 /* import { useFacesInPhoto } from "@infinitered/react-native-mlkit-face-detection"; */
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -8,6 +8,7 @@ import selfieIcon from "../assets/images/Selfiicon2.png";
 
 export default function VerifySelfie() {
   const router = useRouter();
+  const { bvn } = useLocalSearchParams<{ bvn?: string }>();
 
   const [showCamera, setShowCamera] = useState(false);
   const [selfieUri, setSelfieUri] = useState<string | null>(null);
@@ -165,7 +166,12 @@ export default function VerifySelfie() {
               console.log("Face detection status:", status);
               console.log("Faces detected:", faces?.length);
               console.log("Face detection error:", error);*/
-              router.push("./personal-details");
+              router.push({
+                pathname: "./personal-details",
+                params: {
+                  bvn: bvn ?? "",
+                },
+              });
             }}
           >
             <Text style={styles.continueText}>Continue</Text>
