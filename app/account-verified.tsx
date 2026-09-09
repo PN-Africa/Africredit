@@ -8,7 +8,7 @@ export default function AccountVerified() {
   const handleDone = () => {
     // We can change this destination later
     // when we connect the verification flow
-    router.replace("/loan-approved" as any);
+    router.push("/profile");
   };
 
   return (
