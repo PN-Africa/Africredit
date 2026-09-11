@@ -18,7 +18,7 @@ export default function WelcomeAuth() {
       <View style={styles.sheet}>
         <Pressable
           style={styles.signUpButton}
-          onPress={() => router.push("/login")}
+          onPress={() => router.push("/signup")}
         >
           <Text style={styles.signUpText}>Sign Up</Text>
         </Pressable>

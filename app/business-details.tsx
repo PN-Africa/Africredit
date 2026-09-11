@@ -1,21 +1,54 @@
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
 import {
-    Modal,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function BusinessDetails() {
   const router = useRouter();
 
+  // Information collected from previous steps
+  const {
+    bvn,
+    fullName,
+    dateOfBirth,
+    state,
+    address,
+    idType,
+    idNumber,
+    nextOfKinName,
+    relationship,
+    nextOfKinPhone,
+    nextOfKinNin,
+    nextOfKinAddress,
+  } = useLocalSearchParams<{
+    bvn?: string;
+    fullName?: string;
+    dateOfBirth?: string;
+    state?: string;
+    address?: string;
+    idType?: string;
+    idNumber?: string;
+    nextOfKinName?: string;
+    relationship?: string;
+    nextOfKinPhone?: string;
+    nextOfKinNin?: string;
+    nextOfKinAddress?: string;
+  }>();
+
   const [businessName, setBusinessName] = useState("");
   const [businessType, setBusinessType] = useState("Retail & trading");
+  const [businessAddress, setBusinessAddress] = useState("");
   const [monthlyIncome, setMonthlyIncome] = useState("");
+
   const [showBusinessTypes, setShowBusinessTypes] = useState(false);
 
   const businessTypes = [
@@ -29,62 +62,139 @@ export default function BusinessDetails() {
   ];
 
   const handleVerify = () => {
-    router.push("./account-verified");
+    if (!businessName.trim()) {
+      Alert.alert("Missing information", "Please enter your business name.");
+      return;
+    }
+
+    if (!businessAddress.trim()) {
+      Alert.alert("Missing information", "Please enter your business address.");
+      return;
+    }
+
+    if (!monthlyIncome.trim()) {
+      Alert.alert(
+        "Missing information",
+        "Please enter your average monthly income.",
+      );
+      return;
+    }
+
+    // All information collected throughout the verification flow
+    console.log("Complete identity information:", {
+      bvn,
+      fullName,
+      dateOfBirth,
+      state,
+      address,
+      idType,
+      idNumber,
+
+      nextOfKinName,
+      relationship,
+      nextOfKinPhone,
+      nextOfKinNin,
+      nextOfKinAddress,
+
+      businessName,
+      businessType,
+      businessAddress,
+      monthlyIncome,
+    });
+
+    router.push("/account-verified");
   };
+
+  const isFormComplete =
+    businessName.trim().length > 0 &&
+    businessAddress.trim().length > 0 &&
+    monthlyIncome.trim().length > 0;
 
   return (
     <View style={styles.container}>
-      {/* Back Button */}
-      <Pressable style={styles.backButton} onPress={() => router.back()}>
-        <Text style={styles.backArrow}>←</Text>
-      </Pressable>
-
-      {/* Progress */}
-      <View style={styles.progressRow}>
-        <Text style={styles.progressText}>Verify your identity</Text>
-        <Text style={styles.dot}>•</Text>
-        <Text style={styles.stepText}>Step 4 of 4</Text>
-      </View>
-
-      {/* Title */}
-      <Text style={styles.title}>Now, tell us about your business</Text>
-
-      {/* Business Name */}
-      <Text style={styles.label}>Business name</Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="As it appears on your BVN"
-        placeholderTextColor="#747474"
-        value={businessName}
-        onChangeText={setBusinessName}
-      />
-
-      {/* Business Type */}
-      <Text style={styles.label}>Business type</Text>
-
-      <Pressable
-        style={styles.selectInput}
-        onPress={() => setShowBusinessTypes(true)}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
       >
-        <Text style={styles.selectText}>{businessType}</Text>
-        <Text style={styles.arrow}>⌄</Text>
-      </Pressable>
+        {/* Back Button */}
+        <Pressable style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backArrow}>←</Text>
+        </Pressable>
 
-      {/* Monthly Income */}
-      <Text style={styles.label}>Average monthly income</Text>
+        {/* Progress */}
+        <View style={styles.progressRow}>
+          <Text style={styles.progressText}>Verify your identity</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="150,000"
-        placeholderTextColor="#747474"
-        value={monthlyIncome}
-        onChangeText={setMonthlyIncome}
-        keyboardType="numeric"
-      />
+          <Text style={styles.dot}>•</Text>
+
+          <Text style={styles.stepText}>Step 5 of 5</Text>
+        </View>
+
+        {/* Title */}
+        <Text style={styles.title}>Now, tell us about your business</Text>
+
+        {/* Business Name */}
+        <Text style={styles.label}>Business name</Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your business name"
+          placeholderTextColor="#747474"
+          value={businessName}
+          onChangeText={setBusinessName}
+        />
+
+        {/* Business Type */}
+        <Text style={styles.label}>Business type</Text>
+
+        <Pressable
+          style={styles.selectInput}
+          onPress={() => setShowBusinessTypes(true)}
+        >
+          <Text style={styles.selectText}>{businessType}</Text>
+
+          <Text style={styles.arrow}>⌄</Text>
+        </Pressable>
+
+        {/* Business Address */}
+        <Text style={styles.label}>Business address</Text>
+
+        <TextInput
+          style={[styles.input, styles.addressInput]}
+          placeholder="Enter your business address"
+          placeholderTextColor="#747474"
+          value={businessAddress}
+          onChangeText={setBusinessAddress}
+          multiline
+          textAlignVertical="top"
+        />
+
+        {/* Monthly Income */}
+        <Text style={styles.label}>Average monthly income</Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="150,000"
+          placeholderTextColor="#747474"
+          value={monthlyIncome}
+          onChangeText={(text) => {
+            const numbersOnly = text.replace(/[^0-9]/g, "");
+            setMonthlyIncome(numbersOnly);
+          }}
+          keyboardType="number-pad"
+        />
+
+        <View style={styles.bottomSpace} />
+      </ScrollView>
 
       {/* Confirm Button */}
-      <Pressable style={styles.confirmButton} onPress={handleVerify}>
+      <Pressable
+        style={[
+          styles.confirmButton,
+          !isFormComplete && styles.confirmButtonDisabled,
+        ]}
+        onPress={handleVerify}
+      >
         <Text style={styles.buttonText}>Confirm and Verify</Text>
       </Pressable>
 
@@ -93,6 +203,7 @@ export default function BusinessDetails() {
         visible={showBusinessTypes}
         transparent={true}
         animationType="slide"
+        onRequestClose={() => setShowBusinessTypes(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -130,6 +241,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFDF8",
     paddingHorizontal: 24,
     paddingTop: 80,
+  },
+
+  scrollContent: {
+    paddingBottom: 120,
   },
 
   backButton: {
@@ -199,6 +314,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
 
+  addressInput: {
+    height: 90,
+    paddingTop: 15,
+    paddingBottom: 15,
+  },
+
   selectInput: {
     height: 54,
     borderWidth: 1,
@@ -222,6 +343,10 @@ const styles = StyleSheet.create({
     color: "#1F2328",
   },
 
+  bottomSpace: {
+    height: 30,
+  },
+
   confirmButton: {
     height: 58,
     backgroundColor: "#2F9B7D",
@@ -232,6 +357,10 @@ const styles = StyleSheet.create({
     bottom: 40,
     left: 24,
     right: 24,
+  },
+
+  confirmButtonDisabled: {
+    opacity: 0.5,
   },
 
   buttonText: {

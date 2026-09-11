@@ -80,7 +80,7 @@ export default function SignIn() {
 
         <View style={styles.signupRow}>
           <Text style={styles.signupText}>New to AfriCredit? </Text>
-          <Link href="/login" asChild>
+          <Link href="/signup" asChild>
             <Pressable>
               <Text style={styles.signupLink}>Create an account</Text>
             </Pressable>
