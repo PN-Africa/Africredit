@@ -1,5 +1,4 @@
 import { useRouter } from "expo-router";
-import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function AccountVerified() {
@@ -8,7 +7,7 @@ export default function AccountVerified() {
   const handleDone = () => {
     // We can change this destination later
     // when we connect the verification flow
-    router.push("/profile");
+    router.push("/signin");
   };
 
   return (
@@ -23,13 +22,14 @@ export default function AccountVerified() {
         <Text style={styles.title}>Account Verified</Text>
 
         <Text style={styles.subtitle}>
-          Your account has been verified successfully
+          Your account has been verified successfully.Log in to continue to your
+          account.
         </Text>
       </View>
 
       {/* Done Button */}
       <Pressable style={styles.doneButton} onPress={handleDone}>
-        <Text style={styles.buttonText}>Done</Text>
+        <Text style={styles.buttonText}>Log in</Text>
       </Pressable>
     </View>
   );
