@@ -9,6 +9,7 @@ import {
   Check,
 } from "lucide-react-native";
 import { useLoan } from "../../contexts/LoanContext";
+import { useProfile } from "../../contexts/ProfileContext";
 import { formatCurrency } from "../../lib/loanMath";
 
 const recentActivity = [
@@ -67,6 +68,9 @@ export default function Home() {
     activeLoanDetails,
     application,
   } = useLoan();
+  const { fullName } = useProfile();
+
+  const firstName = fullName.trim().split(" ")[0] || "there";
 
   const repaidPercent =
     loanTotal > 0
@@ -103,7 +107,7 @@ export default function Home() {
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Good afternoon</Text>
-          <Text style={styles.name}>Theophilus 👋</Text>
+          <Text style={styles.name}>{firstName} 👋</Text>
         </View>
         <Pressable style={styles.bellButton} onPress={handleBell}>
           <Bell size={18} color="#111827" />

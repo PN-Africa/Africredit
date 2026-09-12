@@ -10,11 +10,13 @@ import {
 import { Link, router } from "expo-router";
 import { Eye, EyeOff } from "lucide-react-native";
 import logo from "../../assets/images/africredit-logo.png";
+import { useProfile } from "../../contexts/ProfileContext";
 
 const PHONE_REGEX = /[^0-9\s]/g;
 const PHONE_DIGITS_REGEX = /^\d{10,13}$/;
 
 export default function SignIn() {
+  const { updateProfile } = useProfile();
   const [phone, setPhone] = useState("234 345 4567");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -66,6 +68,11 @@ export default function SignIn() {
       });
       return;
     }
+
+    // Save the number the user actually signed in with, so it shows up
+    // in Personal Information / Profile everywhere else in the app.
+    const digitsOnly = phone.replace(/\s/g, "");
+    updateProfile({ phone: `+${digitsOnly}` });
 
     console.log("Login submitted", { phone, password });
     router.push("/(tabs)/home");
