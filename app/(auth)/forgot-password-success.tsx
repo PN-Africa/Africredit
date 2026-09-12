@@ -3,6 +3,10 @@ import { router } from "expo-router";
 import { Check } from "lucide-react-native";
 
 export default function ForgotPasswordSuccess() {
+  const handleDone = () => {
+    router.replace("/signin");
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -15,10 +19,7 @@ export default function ForgotPasswordSuccess() {
         </Text>
       </View>
 
-      <Pressable
-        style={styles.button}
-        onPress={() => router.replace("/signin")}
-      >
+      <Pressable style={styles.button} onPress={handleDone}>
         <Text style={styles.buttonText}>Done</Text>
       </Pressable>
     </View>
@@ -48,7 +49,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#111827",
     marginBottom: 8,

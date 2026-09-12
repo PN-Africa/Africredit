@@ -19,12 +19,11 @@ export default function ForgotPasswordStep1() {
       </Pressable>
 
       <Text style={styles.stepLabel}>Reset Password  •  Step 1 of 3</Text>
-      <Text style={styles.title}>Let's find your account</Text>
+      <Text style={styles.title}>Let&apos;s find your account</Text>
       <Text style={styles.subtitle}>
-        Confirm the phone number on your account. We'll text you a code to
-        reset your password.
-      </Text>
-
+  Confirm the phone number on your account. We&apos;ll text you a code to
+  reset your password.
+</Text>
       <Text style={styles.label}>Phone number</Text>
       <View style={styles.inputRow}>
         <Text style={styles.prefix}>+234</Text>
@@ -33,7 +32,6 @@ export default function ForgotPasswordStep1() {
           value={phone}
           onChangeText={handlePhoneChange}
           keyboardType="phone-pad"
-          maxLength={13}
         />
       </View>
 

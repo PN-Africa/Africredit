@@ -3,7 +3,6 @@ import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { ArrowLeft, Eye, EyeOff, Lock } from "lucide-react-native";
 
-// Loose check: at least 8 chars and one number — not enforcing symbols/case
 const PASSWORD_REGEX = /^(?=.*[0-9]).{8,}$/;
 
 export default function ForgotPasswordStep3() {
