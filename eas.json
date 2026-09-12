@@ -11,9 +11,8 @@
     "preview": {
       "distribution": "internal",
       "android": {
-      "resourceClass": "medium",
-      "distribution": "internal"
-    }
+        "buildType": "apk"
+      }
     },
     "production": {
       "autoIncrement": true

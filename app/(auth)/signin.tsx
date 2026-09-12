@@ -12,14 +12,63 @@ import { Eye, EyeOff } from "lucide-react-native";
 import logo from "../../assets/images/africredit-logo.png";
 
 const PHONE_REGEX = /[^0-9\s]/g;
+const PHONE_DIGITS_REGEX = /^\d{10,13}$/;
 
 export default function SignIn() {
   const [phone, setPhone] = useState("234 345 4567");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const handlePhoneChange = (value: string) => {
     setPhone(value.replace(PHONE_REGEX, ""));
+    if (phoneError) setPhoneError("");
+  };
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    if (passwordError) setPasswordError("");
+  };
+
+  const validate = () => {
+    const digitsOnly = phone.replace(/\s/g, "");
+    let phoneMsg = "";
+    let passwordMsg = "";
+
+    if (!digitsOnly) {
+      phoneMsg = "Phone number is required";
+    } else if (!PHONE_DIGITS_REGEX.test(digitsOnly)) {
+      phoneMsg = "Enter a valid phone number";
+    }
+
+    if (!password) {
+      passwordMsg = "Password is required";
+    } else if (password.length < 6) {
+      passwordMsg = "Password must be at least 6 characters";
+    }
+
+    setPhoneError(phoneMsg);
+    setPasswordError(passwordMsg);
+
+    return { isValid: !phoneMsg && !passwordMsg, phoneMsg, passwordMsg };
+  };
+
+  const handleLogin = () => {
+    const { isValid, phoneMsg, passwordMsg } = validate();
+
+    if (!isValid) {
+      console.log("Login blocked — validation failed", {
+        phone,
+        password,
+        phoneError: phoneMsg,
+        passwordError: passwordMsg,
+      });
+      return;
+    }
+
+    console.log("Login submitted", { phone, password });
+    router.push("/(tabs)/home");
   };
 
   return (
@@ -37,7 +86,7 @@ export default function SignIn() {
 
         <Text style={styles.label}>Phone number</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, phoneError && styles.inputError]}
           value={phone}
           onChangeText={handlePhoneChange}
           keyboardType="phone-pad"
@@ -45,13 +94,16 @@ export default function SignIn() {
           placeholderTextColor="#9ca3af"
           maxLength={13}
         />
+        {!!phoneError && <Text style={styles.errorText}>{phoneError}</Text>}
 
         <Text style={styles.label}>Password</Text>
-        <View style={styles.passwordRow}>
+        <View
+          style={[styles.passwordRow, passwordError && styles.inputError]}
+        >
           <TextInput
             style={styles.passwordInput}
             value={password}
-            onChangeText={setPassword}
+            onChangeText={handlePasswordChange}
             placeholder="Enter a password"
             placeholderTextColor="#9ca3af"
             secureTextEntry={!showPassword}
@@ -64,6 +116,9 @@ export default function SignIn() {
             )}
           </Pressable>
         </View>
+        {!!passwordError && (
+          <Text style={styles.errorText}>{passwordError}</Text>
+        )}
 
         <Link href="/forgot-password" asChild>
           <Pressable>
@@ -71,16 +126,13 @@ export default function SignIn() {
           </Pressable>
         </Link>
 
-        <Pressable
-          style={styles.loginButton}
-          onPress={() => router.push("/(tabs)/home")}
-        >
+        <Pressable style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginButtonText}>Login</Text>
         </Pressable>
 
         <View style={styles.signupRow}>
           <Text style={styles.signupText}>New to AfriCredit? </Text>
-          <Link href="/login" asChild>
+          <Link href="/signup" asChild>
             <Pressable>
               <Text style={styles.signupLink}>Create an account</Text>
             </Pressable>
@@ -144,6 +196,15 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#111827",
     marginBottom: 18,
+  },
+  inputError: {
+    borderColor: "#DC2626",
+    marginBottom: 6,
+  },
+  errorText: {
+    color: "#DC2626",
+    fontSize: 12,
+    marginBottom: 12,
   },
   passwordRow: {
     flexDirection: "row",

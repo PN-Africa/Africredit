@@ -31,7 +31,7 @@ export default function AccountCreated() {
 
         <Pressable
           style={styles.skipButton}
-          onPress={() => router.push("/africredit")}
+          onPress={() => router.push("/signin")}
         >
           <Text style={styles.skipText}>Skip Verification</Text>
         </Pressable>
